@@ -1,0 +1,43 @@
+name: meeting-scheduler-env
+description: >
+  A real-world environment where an AI agent resolves meeting conflicts
+  and optimizes schedules under constraints.
+
+version: 1.0.0
+
+entrypoint: env.environment:MeetingEnv
+
+tasks:
+  - id: easy
+    description: Resolve a single meeting conflict
+  - id: medium
+    description: Resolve multiple meeting conflicts
+  - id: hard
+    description: Optimize a full meeting schedule with priorities
+
+observation_space:
+  type: object
+  properties:
+    meetings:
+      type: array
+    conflicts:
+      type: array
+    remaining_steps:
+      type: integer
+
+action_space:
+  type: object
+  properties:
+    action_type:
+      type: string
+      enum: ["reschedule", "drop", "noop"]
+    meeting_id:
+      type: string
+    new_start:
+      type: integer
+    new_end:
+      type: integer
+
+reward:
+  type: float
+  range: [0.0, 2.0]
