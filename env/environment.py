@@ -95,11 +95,12 @@ class MeetingEnv:
                     reward -= 0.1
 
         # 3. Reward preserving important meetings
-        for m in self.meetings:
-            if m.priority == "high":
-                reward += 0.2
-            elif m.priority == "medium":
-                reward += 0.1
+        if new_conflict_count < prev_conflict_count:
+            for m in self.meetings:
+                if m.priority == "high":
+                    reward += 0.2
+                elif m.priority == "medium":
+                    reward += 0.1
 
         # 4. Penalty for useless action
         if action.action_type == "noop" and prev_conflict_count > 0:
@@ -108,6 +109,15 @@ class MeetingEnv:
         # 5. Strong penalty if all meetings are removed
         if len(self.meetings) == 0:
             reward -= 1.0
+
+        # 6. Deadline violation penalty
+        for m in self.meetings:
+            if m.end > m.deadline:
+                reward -= 0.8
+            else:
+                reward += 0.1  # reward valid scheduling
+            if m.end > m.deadline+1:
+                reward -= 1.0
 
         # ---------------- DONE LOGIC ----------------
         done = False

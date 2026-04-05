@@ -7,6 +7,7 @@ class Meeting(BaseModel):
     start: int
     end: int
     priority: Literal["low", "medium", "high"]
+    deadline: int
 
 # Observation Model
 class Observation(BaseModel):
