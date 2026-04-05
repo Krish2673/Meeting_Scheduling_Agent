@@ -58,6 +58,8 @@ class MeetingEnv:
     def step(self, action: Action) -> StepResult:
         self.current_step += 1
 
+        # Store previous state (IMPORTANT)
+        prev_meetings = deepcopy(self.meetings)
         prev_conflicts = self.find_conflicts()
         prev_conflict_count = len(prev_conflicts)
 
@@ -68,28 +70,59 @@ class MeetingEnv:
         new_conflicts = self.find_conflicts()
         new_conflict_count = len(new_conflicts)
 
-        # Reward logic
+        # ---------------- REWARD LOGIC ----------------
         reward = 0.0
 
+        # 1. Conflict-based reward
         if new_conflict_count < prev_conflict_count:
             reward += 0.5  # resolved conflict
-
         elif new_conflict_count > prev_conflict_count:
             reward -= 0.3  # created conflict
 
+        # 2. Priority-aware penalty for dropping meetings
+        prev_ids = {m.id for m in prev_meetings}
+        current_ids = {m.id for m in self.meetings}
+
+        dropped_ids = prev_ids - current_ids
+
+        for m in prev_meetings:
+            if m.id in dropped_ids:
+                if m.priority == "high":
+                    reward -= 0.6
+                elif m.priority == "medium":
+                    reward -= 0.3
+                else:
+                    reward -= 0.1
+
+        # 3. Reward preserving important meetings
+        for m in self.meetings:
+            if m.priority == "high":
+                reward += 0.2
+            elif m.priority == "medium":
+                reward += 0.1
+
+        # 4. Penalty for useless action
         if action.action_type == "noop" and prev_conflict_count > 0:
             reward -= 0.1
 
-        # Done condition
+        # 5. Strong penalty if all meetings are removed
+        if len(self.meetings) == 0:
+            reward -= 1.0
+
+        # ---------------- DONE LOGIC ----------------
         done = False
 
-        if new_conflict_count == 0:
+        if new_conflict_count == 0 and len(self.meetings) > 0:
             reward += 1.0
+            done = True
+
+        if len(self.meetings) == 0:
             done = True
 
         if self.current_step >= self.max_steps:
             done = True
 
+        # ---------------- OBSERVATION ----------------
         observation = Observation(
             meetings=deepcopy(self.meetings),
             conflicts=new_conflicts,
