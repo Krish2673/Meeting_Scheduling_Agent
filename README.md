@@ -123,7 +123,7 @@ The environment includes 3 deterministic tasks:
 - Deadline constraints  
 - Not fully solvable  
 
-👉 Expected score: **~0.6–0.85**
+Expected score: **~0.6–0.85**
 
 ---
 
