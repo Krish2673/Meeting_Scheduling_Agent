@@ -100,6 +100,7 @@ def run_task(task_type):
 
 
 def main():
+    print("\nFinal Results:")
     for task in ["easy", "medium", "hard"]:
         score = run_task(task)
         print(f"{task} score: {score:.2f}")

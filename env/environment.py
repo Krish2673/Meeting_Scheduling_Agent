@@ -156,9 +156,7 @@ class MeetingEnv:
 
 env = MeetingEnv()
 obs = env.reset()
-print(obs,end="\n\n")
 
 action = Action(action_type="reschedule", meeting_id="M2", new_start=12, new_end=13)
 
 result = env.step(action)
-print(result)
