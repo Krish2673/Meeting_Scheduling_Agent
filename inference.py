@@ -3,6 +3,8 @@ from openai import OpenAI
 from env.environment import MeetingEnv
 from env.models import Action
 from dotenv import load_dotenv
+import json
+import re
 
 load_dotenv()
 
@@ -10,6 +12,16 @@ API_BASE_URL = os.getenv("API_BASE_URL")
 MODEL_NAME = os.getenv("MODEL_NAME")
 
 client = OpenAI(base_url=API_BASE_URL, api_key=os.getenv("OPENAI_API_KEY"))
+
+def extract_json(text):
+            try:
+                return json.loads(text)
+            except:
+                # try to extract JSON block
+                match = re.search(r"\{.*\}", text, re.DOTALL)
+                if match:
+                    return json.loads(match.group())
+                raise ValueError("No valid JSON found")
 
 def choose_action_llm(observation):
     prompt = f"""
@@ -26,7 +38,11 @@ def choose_action_llm(observation):
         Conflicts:
         {observation.conflicts}
 
-        Return ONLY a JSON action like:
+        IMPORTANT:
+        - Return ONLY valid JSON
+        - Do NOT include any explanation or text
+        - Output must be strictly in this format:
+
         {{
         "action_type": "reschedule",
         "meeting_id": "M2",
@@ -42,14 +58,12 @@ def choose_action_llm(observation):
                 {"role": "system", "content": "You are a smart scheduling agent."},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.2,
-            max_tokens=150
+            temperature=0.2
         )
 
         content = response.choices[0].message.content
 
-        import json
-        action_dict = json.loads(content)
+        action_dict = extract_json(content)
 
         return Action(**action_dict)
 
