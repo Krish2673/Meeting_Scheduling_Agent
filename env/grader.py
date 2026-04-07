@@ -7,7 +7,6 @@ def compute_score(initial_conflicts: int, final_conflicts: int) -> float:
 
     score = 1 - (final_conflicts / initial_conflicts)
 
-    # clamp between 0 and 1
     return max(0.0, min(1.0, score))
 
 

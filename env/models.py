@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from typing import List, Literal, Optional
 
-# Meeting Model
 class Meeting(BaseModel):
     id: str
     start: int
@@ -9,13 +8,11 @@ class Meeting(BaseModel):
     priority: Literal["low", "medium", "high"]
     deadline: int
 
-# Observation Model
 class Observation(BaseModel):
     meetings: List[Meeting]
     conflicts: List[List[str]]  # pairs of meeting IDs
     remaining_steps: int
 
-# Action Model
 class Action(BaseModel):
     action_type: Literal["reschedule", "drop", "noop"]
 
@@ -23,7 +20,6 @@ class Action(BaseModel):
     new_start: Optional[int] = None
     new_end: Optional[int] = None
 
-# StepResult Model
 class StepResult(BaseModel):
     observation: Observation
     reward: float

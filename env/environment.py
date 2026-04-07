@@ -58,16 +58,13 @@ class MeetingEnv:
     def step(self, action: Action) -> StepResult:
         self.current_step += 1
 
-        # Store previous state (IMPORTANT)
-        prev_meetings = deepcopy(self.meetings)
+        prev_meetings = deepcopy(self.meetings)         # store prev state
         prev_conflicts = self.find_conflicts()
         prev_conflict_count = len(prev_conflicts)
 
-        # Apply action
         self.apply_action(action)
 
-        # New state
-        new_conflicts = self.find_conflicts()
+        new_conflicts = self.find_conflicts()       # new state
         new_conflict_count = len(new_conflicts)
 
         # ---------------- REWARD LOGIC ----------------
@@ -115,11 +112,10 @@ class MeetingEnv:
             if m.end > m.deadline:
                 reward -= 0.8
             else:
-                reward += 0.1  # reward valid scheduling
+                reward += 0.1 
             if m.end > m.deadline+1:
                 reward -= 1.0
 
-        # ---------------- DONE LOGIC ----------------
         done = False
 
         if new_conflict_count == 0 and len(self.meetings) > 0:
@@ -132,7 +128,6 @@ class MeetingEnv:
         if self.current_step >= self.max_steps:
             done = True
 
-        # ---------------- OBSERVATION ----------------
         observation = Observation(
             meetings=deepcopy(self.meetings),
             conflicts=new_conflicts,

@@ -17,8 +17,7 @@ def extract_json(text):
             try:
                 return json.loads(text)
             except:
-                # try to extract JSON block
-                match = re.search(r"\{.*\}", text, re.DOTALL)
+                match = re.search(r"\{.*\}", text, re.DOTALL)       # Extract JSON block
                 if match:
                     return json.loads(match.group())
                 raise ValueError("No valid JSON found")
@@ -70,7 +69,6 @@ def choose_action_llm(observation):
     except Exception as e:
         print("LLM error:", e)
 
-        # fallback to safe action
         return Action(action_type="noop")
 
 
