@@ -7,27 +7,57 @@ from dotenv import load_dotenv
 load_dotenv()
 
 API_BASE_URL = os.getenv("API_BASE_URL")
-API_KEY = os.getenv("HF_TOKEN")
 MODEL_NAME = os.getenv("MODEL_NAME")
 
-# client = OpenAI(base_url=API_BASE_URL, api_key=API_KEY)
+client = OpenAI(base_url=API_BASE_URL, api_key=os.getenv("OPENAI_API_KEY"))
 
-def choose_action(observation):
-    """
-    Simple rule-based fallback (for stability)
-    """
-    if observation.conflicts:
-        m1, m2 = observation.conflicts[0]
+def choose_action_llm(observation):
+    prompt = f"""
+        You are an intelligent scheduling assistant.
 
-        # always reschedule second meeting
-        return Action(
-            action_type="reschedule",
-            meeting_id=m2,
-            new_start=12,
-            new_end=13
+        Your goal:
+        - Resolve meeting conflicts
+        - Preserve high-priority meetings
+        - Respect deadlines
+
+        Meetings:
+        {observation.meetings}
+
+        Conflicts:
+        {observation.conflicts}
+
+        Return ONLY a JSON action like:
+        {{
+        "action_type": "reschedule",
+        "meeting_id": "M2",
+        "new_start": 12,
+        "new_end": 13
+        }}
+        """
+
+    try:
+        response = client.chat.completions.create(
+            model=MODEL_NAME,
+            messages=[
+                {"role": "system", "content": "You are a smart scheduling agent."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.2,
+            max_tokens=150
         )
 
-    return Action(action_type="noop")
+        content = response.choices[0].message.content
+
+        import json
+        action_dict = json.loads(content)
+
+        return Action(**action_dict)
+
+    except Exception as e:
+        print("LLM error:", e)
+
+        # fallback to safe action
+        return Action(action_type="noop")
 
 
 def run_task(task_type):
@@ -37,7 +67,7 @@ def run_task(task_type):
     total_reward = 0
 
     while True:
-        action = choose_action(obs)
+        action = choose_action_llm(obs)
 
         result = env.step(action)
         obs = result.observation
