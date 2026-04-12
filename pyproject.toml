@@ -1,7 +1,7 @@
 [project]
 name = "meeting-scheduler-env"
 version = "0.1.0"
-description = "OpenEnv environment for meeting scheduling with constraints"
+description = "OpenEnv environment for meeting scheduling"
 authors = [
     { name = "Krish" }
 ]
@@ -10,8 +10,12 @@ dependencies = [
     "uvicorn",
     "pydantic",
     "python-dotenv",
-    "openai"
+    "openai",
+    "openenv>=0.2.0"
 ]
+
+[project.scripts]
+server = "server.app:app"
 
 [build-system]
 requires = ["setuptools"]

@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from env.environment import MeetingEnv
 from env.models import Action
+from inference import run_task
 
 app = FastAPI()
 
@@ -29,6 +30,26 @@ def step(action: dict):
         "info": result.info
     }
 
+@app.get("/run_inference")
+def run():
+    try:
+        easy_score = run_task("easy")
+        medium_score = run_task("medium")
+        hard_score = run_task("hard")
+
+        return {
+            "status": "success",
+            "scores": {
+                "easy": easy_score,
+                "medium": medium_score,
+                "hard": hard_score
+            }
+        }
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": str(e)
+        }
 
 @app.get("/state")
 def state():
