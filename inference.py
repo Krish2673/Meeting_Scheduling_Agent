@@ -115,6 +115,7 @@ def run_task(task_type):
         final_conflicts = len(obs.conflicts)
 
         score = 1 - (final_conflicts / max(1, initial_conflicts))
+        score = max(0.01, min(0.99, score))
         score = round(score, 2)
 
         print(f"[END] task={task_type} score={score} steps={step_count}", flush=True)
