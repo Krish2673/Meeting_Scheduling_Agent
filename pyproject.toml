@@ -1,0 +1,18 @@
+[project]
+name = "meeting-scheduler-env"
+version = "0.1.0"
+description = "OpenEnv environment for meeting scheduling with constraints"
+authors = [
+    { name = "Krish" }
+]
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "python-dotenv",
+    "openai"
+]
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
