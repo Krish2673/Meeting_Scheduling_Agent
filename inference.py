@@ -89,18 +89,25 @@ def run_task(task_type):
 
         initial_conflicts = len(obs.conflicts)
 
+        print(f"[START] task={task_type}", flush=True)
+
+        step_count = 0
         total_reward = 0
 
         while True:
+            step_count += 1
+
             try:
                 action = choose_action_llm(obs)
                 result = env.step(action)
             except Exception as e:
-                print(f"Step error ({task_type}):", e)
+                print(f"Step error ({task_type}):", e, flush=True)
                 break
 
             obs = result.observation
             total_reward += result.reward
+
+            print(f"[STEP] step={step_count} reward={result.reward}", flush=True)
 
             if result.done:
                 break
@@ -108,19 +115,21 @@ def run_task(task_type):
         final_conflicts = len(obs.conflicts)
 
         score = 1 - (final_conflicts / max(1, initial_conflicts))
-        return round(score, 2)
+        score = round(score, 2)
+
+        print(f"[END] task={task_type} score={score} steps={step_count}", flush=True)
+
+        return score
 
     except Exception as e:
-        print(f"Task {task_type} failed:", e)
+        print(f"[END] task={task_type} score=0.0 steps=0", flush=True)
         return 0.0
-
 
 def main():
     try:
         print("\nFinal Results:")
         for task in ["easy", "medium", "hard"]:
-            score = run_task(task)
-            print(f"{task} score: {score:.2f}")
+            run_task(task)
     except Exception as e:
         print("Fatal error:", e)
 
