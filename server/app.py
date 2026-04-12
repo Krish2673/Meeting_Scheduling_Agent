@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from env.environment import MeetingEnv
 from env.models import Action
 from inference import run_task
+import uvicorn
 
 app = FastAPI()
 
@@ -55,3 +56,9 @@ def run():
 def state():
     obs = env.state()
     return obs.model_dump()
+
+def main():
+    uvicorn.run("server.app:app", host="0.0.0.0", port=7860)
+
+if __name__ == "__main__":
+    main()
