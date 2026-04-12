@@ -11,6 +11,7 @@ def root():
     return {"Message" : "Meeting Scheduling Environment is running"}
 
 @app.get("/reset")
+@app.post("/reset")
 def reset(task: str = "easy"):
     obs = env.reset(task_type=task)
     return obs.model_dump()
